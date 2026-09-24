@@ -12,7 +12,7 @@ import java.util.Properties;
  * 数据库工具类 (JDBC)
  *
  * 负责人: 技术官(公共类, 已实现, 全组直接用, 不要各自改)
- * 说明: 数据库账号密码只改 src/main/resources/db.properties
+ * 说明: 数据库账号密码只改 src/main/resources/db.properties.local
  *
  * dao 层的写法(统一模板, 照着写就行):
  *   Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
@@ -39,14 +39,23 @@ public class DBUtil {
     private static String password;
 
     static {
-        InputStream in = null;
+        InputStream in1 = null;
+        InputStream in2 = null;
         try {
-            in = DBUtil.class.getClassLoader().getResourceAsStream("db.properties");
-            if (in == null) {
+            in1 = DBUtil.class.getClassLoader().getResourceAsStream("db.properties");
+            if (in1 == null) {
                 throw new IllegalStateException("找不到 db.properties, 确认它在 src/main/resources 下");
             }
+
             Properties props = new Properties();
-            props.load(in);
+            props.load(in1);
+
+            // db.properties.local 可选: 存在就用它覆盖同名项, 不存在就跳过
+            in2 = DBUtil.class.getClassLoader().getResourceAsStream("db.properties.local");
+            if (in2 != null) {
+                props.load(in2);
+            }
+
             // 加载 MySQL 驱动
             Class.forName(props.getProperty("jdbc.driver"));
             url = props.getProperty("jdbc.url");
@@ -55,13 +64,8 @@ public class DBUtil {
         } catch (Exception e) {
             throw new RuntimeException("初始化数据库配置失败: " + e.getMessage(), e);
         } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            closeQuietly(in1);
+            closeQuietly(in2);
         }
     }
 
@@ -104,6 +108,22 @@ public class DBUtil {
             try {
                 conn.close();
             } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 负责人: 技术官
+     * 功能: 关闭一个可能为 null 的输入流, 关失败只打印不抛异常
+     * 参数: in 输入流, 可以为 null
+     * 返回值: 无
+     */
+    private static void closeQuietly(InputStream in) {
+        if (in != null) {
+            try {
+                in.close();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

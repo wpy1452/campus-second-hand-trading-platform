@@ -12,8 +12,9 @@ out/
 *.classpath
 *.project
 
-### 本地数据库账号密码, 每个人不一样, 不要提交 ###
-src/main/resources/db.properties
+
+### 本地个人配置覆盖(数据库账号密码等), 每人不同, 不要提交 ###
+*.local
 
 ### 日志 ###
 *.log

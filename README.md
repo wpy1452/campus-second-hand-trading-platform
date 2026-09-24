@@ -61,7 +61,7 @@ campus-flea-market/
 ├── README.md                    本文件：架构说明
 ├── sql/flea_market.sql          建库建表 + 测试数据（MySQL 里先执行它）
 └── src/main/
-    ├── resources/db.properties  数据库账号密码（每人改自己的，已被 .gitignore 忽略）
+    ├── resources/db.properties  resources/db.properties默认配置（已经提交），resources/db.properties.local个人配置（已忽略不提交）
     └── java/com/turing/flea/
         ├── Main.java            程序入口：启动登录界面
         ├── common/
@@ -248,9 +248,10 @@ JTable 统一用 `DefaultTableModel`，加载数据 = 先 `setRowCount(0)` 清�
    git switch -c dev-你的名字 origin/dev
    ```
 4. 用 IDEA 以 **Maven 项目** 打开克隆下来的文件夹（**不要自己新建项目再把代码贴过去**，否则环境不统一）。
-5. 复制 `src/main/resources/db.properties.example` 为同目录下的 `db.properties`，把里面的 `jdbc.username` / `jdbc.password` 改成你自己 MySQL 的账号密码。
-
-   克隆下来**没有** `db.properties` —— 它被 `.gitignore` 忽略了，只存在各人本地，不提交到仓库。所以这一步必须做，跳过会启动失败并报 `初始化数据库配置失败`。
+5. 数据库配置开箱可用，默认 root / 123456。
+      只有当你的 MySQL 账号密码跟这个不一样时，才需要复制 src/main/resources/db.properties 为同目录下的
+      db.properties.local，在 .local 里只写要改的那几行（例如只写一行 jdbc.password=你的密码），其余项自动沿用默认值。
+      db.properties.local 已被 .gitignore 忽略，只存在你本地，不会提交到仓库。
 6. 运行 `com.turing.flea.Main` 的 main 方法，就会弹出登录界面。
 7. 命令行打包运行：
    ```
@@ -303,7 +304,7 @@ JTable 统一用 `DefaultTableModel`，加载数据 = 先 `setRowCount(0)` 清�
    git merge origin/dev
    ```
 
-   不要直接往 `main` 或 `dev` 上推，也不要把 `db.properties` 提交上去。
+   不要直接往 `main` 或 `dev` 上推，也不要直接改 db.properties，要改密码请改 .local
 
 ---
 
@@ -321,7 +322,7 @@ JTable 统一用 `DefaultTableModel`，加载数据 = 先 `setRowCount(0)` 清�
 
 按这个顺序开工，今天就能看到东西：
 
-1. `sql/flea_market.sql` 跑一遍，`db.properties` 改好 —— 保证数据库能连上。
+1. `sql/flea_market.sql` 跑一遍，数据库能连上（默认开箱可用，密码不同才需建 .local）
 2. 每人认领第八节表格里自己那一行的类。
 3. 先写 `dao/impl` 里的方法（最独立，照着接口注释里的 SQL 写），再写 `service`，最后写 `view` 的按钮方法。
 4. 每写完一个函数，就把界面接上去点一点，别攒到最后一起测。
