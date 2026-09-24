@@ -1,0 +1,7 @@
+# 数据库连接配置
+# 每个同学把 username / password 改成自己电脑上 MySQL 的账号密码
+# 这个文件已经写进 .gitignore, 不要提交到 git (每个人的密码不一样)
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/flea_market?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+jdbc.username=root
+jdbc.password=123456

@@ -1,0 +1,19 @@
+### Maven ###
+target/
+
+### 编译产物 ###
+*.class
+out/
+
+### IDE ###
+.idea/
+*.iml
+.settings/
+*.classpath
+*.project
+
+### 本地数据库账号密码, 每个人不一样, 不要提交 ###
+src/main/resources/db.properties
+
+### 日志 ###
+*.log
