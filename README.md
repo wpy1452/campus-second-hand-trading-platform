@@ -241,10 +241,18 @@ JTable 统一用 `DefaultTableModel`，加载数据 = 先 `setRowCount(0)` 清�
 
 1. 安装 JDK（8 及以上）、IDEA（社区版即可）、MySQL（5.7 / 8.0）。
 2. 在 MySQL 里执行 `sql/flea_market.sql`（会创建库 `flea_market`、6 张表和几条测试数据）。
-3. 复制项目文件夹，用 IDEA 以 **Maven 项目** 打开（**不要自己新建项目再把代码贴过去**，否则环境不统一）。
-4. 改 `src/main/resources/db.properties` 里的 `jdbc.username` / `jdbc.password` 为你自己的 MySQL 账号密码。
-5. 运行 `com.turing.flea.Main` 的 main 方法，就会弹出登录界面。
-6. 命令行打包运行：
+3. 克隆仓库并切出自己的开发分支（分支怎么用见第十节第 7 条）：
+   ```
+   git clone https://github.com/wpy1452/campus-second-hand-trading-platform.git
+   cd campus-second-hand-trading-platform
+   git switch -c dev-你的名字 origin/dev
+   ```
+4. 用 IDEA 以 **Maven 项目** 打开克隆下来的文件夹（**不要自己新建项目再把代码贴过去**，否则环境不统一）。
+5. 复制 `src/main/resources/db.properties.example` 为同目录下的 `db.properties`，把里面的 `jdbc.username` / `jdbc.password` 改成你自己 MySQL 的账号密码。
+
+   克隆下来**没有** `db.properties` —— 它被 `.gitignore` 忽略了，只存在各人本地，不提交到仓库。所以这一步必须做，跳过会启动失败并报 `初始化数据库配置失败`。
+6. 运行 `com.turing.flea.Main` 的 main 方法，就会弹出登录界面。
+7. 命令行打包运行：
    ```
    mvn clean package
    java -jar target/campus-flea-market.jar
@@ -271,9 +279,31 @@ JTable 统一用 `DefaultTableModel`，加载数据 = 先 `setRowCount(0)` 清�
 3. 命名：类名 `大驼峰`，方法/变量 `小驼峰`，常量 `全大写`；数据库字段用 `下划线`。
 4. 一个函数只做一件事，超过 50 行基本就该拆了。
 5. **不要跨层**：view 里不出现 SQL，service 里不出现 `JOptionPane`，dao 里不出现业务判断。
-6. **每天整合代码**：以函数为单位把自己写完的代码发给技术官，开会时技术官屏幕共享一起整合。
-   前两次整合一定会暴露问题（函数名被自己改了、参数返回值对不上、SQL 写错），早点暴露比最后一天暴露好。
-7. Git：每人一个分支，每天做完就提交（`git commit -m "完成 UserService.login"`），晚上统一合并到主分支；不要直接在主分支上乱推，也不要把 `db.properties` 提交上去。
+6. **每天整合代码**：写完一个函数就 push 到自己的分支，走 PR 合回 `dev`，别攒到最后。
+   合并时最容易暴露问题（函数名被自己改了、参数返回值对不上、SQL 写错），
+   早暴露比最后一天暴露好。开会时技术官屏幕共享 review 大家的 PR。
+7. **Git 分支**（三条长期分支，别搞混）：
+   - `main` —— 稳定基线，**开发期间谁都不要碰**，只在结项时由技术官把 `dev` 合进来。
+   - `arch` —— 架构骨架的存档，**冻结**，只作参照，不改也不用管。
+   - `dev` —— **开发集成分支**（仓库默认分支），所有人的成果都往这里合。
+
+   每人从 `dev` 切一条自己的分支，只在自己的分支上写：
+
+   ```
+   git switch -c dev-你的名字 origin/dev      # 开局切一次
+   git add .
+   git commit -m "完成 UserService.login"    # 写完一个函数就提交
+   git push -u origin dev-你的名字           # 第一次要 -u，之后直接 git push
+   ```
+
+   写完走 PR 合回 `dev`。**第二天开工前先同步别人的进度**，否则拖到最后一天会合不动：
+
+   ```
+   git fetch origin
+   git merge origin/dev
+   ```
+
+   不要直接往 `main` 或 `dev` 上推，也不要把 `db.properties` 提交上去。
 
 ---
 
