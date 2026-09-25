@@ -7,7 +7,7 @@ package com.turing.flea.common;
  *   code -> 存进数据库的值 (int)
  *   desc -> 交易界面上显示的状态文字
  *
- * 负责人: 待分配
+ * 负责人: 久违
  */
 public enum TradeStatus {
 

@@ -8,7 +8,7 @@ package com.turing.flea.common;
  *   desc -> 显示在界面上的文字
  *   写数据库用 getCode(), 界面显示用 getDesc()
  *
- * 负责人: 待分配
+ * 负责人: 久违
  */
 public enum GoodsStatus {
 
