@@ -1,8 +1,13 @@
 package com.turing.flea.view;
 
+import com.turing.flea.common.Session;
+import com.turing.flea.entity.User;
+import com.turing.flea.service.UserService;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -51,7 +56,41 @@ public class LoginView extends JFrame {
      * 返回值: 无
      */
     public void initView() {
-        // TODO 待实现 (负责人: 待分配)
+        //使用绝对布局
+        setLayout(null);
+
+        // 账号密码文本
+        JLabel accountLabel = new JLabel("账号:");
+        accountLabel.setBounds(50, 40, 60, 30);
+        add(accountLabel);
+
+        JLabel passwordLabel = new JLabel("密码:");
+        passwordLabel.setBounds(50, 85, 60, 30);
+        add(passwordLabel);
+
+        // 账号密码输入框
+        accountField = new JTextField();
+        accountField.setBounds(120, 40, 200, 30);
+        add(accountField);
+
+        passwordField = new JPasswordField();
+        passwordField.setBounds(120, 85, 200, 30);
+        add(passwordField);
+
+        // 登录按钮
+        loginButton = new JButton("登录");
+        loginButton.setBounds(80, 150, 100, 35);
+        add(loginButton);
+
+        // 注册按钮
+        registerButton = new JButton("注册账号");
+        registerButton.setBounds(220, 150, 100, 35);
+        add(registerButton);
+
+        // 添加按钮监听
+        loginButton.addActionListener(e -> onLoginClick());
+
+        registerButton.addActionListener(e -> onRegisterClick());
     }
 
     /**
@@ -65,7 +104,35 @@ public class LoginView extends JFrame {
      * 返回值: 无
      */
     public void onLoginClick() {
-        throw new UnsupportedOperationException("待实现: LoginView.onLoginClick 负责人: 待分配");
+
+        //获取账号密码字符串
+        String account = accountField.getText();
+        String password = new String(passwordField.getPassword());
+
+        //账号密码判空
+        if(account ==null || password == null || account.isBlank() || password.isBlank()){
+            JOptionPane.showMessageDialog(this, "账号和密码不能为空");
+            return;
+        }
+
+        //调用业务层
+        UserService userService = new UserService();
+        User user = userService.login(account,password);
+
+        //登录失败
+        if(user == null) {
+            JOptionPane.showMessageDialog(this, "账号或密码错误");
+            return;
+        }
+
+        // 登录成功保存用户
+        Session.setCurrentUser(user);
+
+        // 关闭登录窗口
+        dispose();
+
+        // 打开主界面
+        new MainView().setVisible(true);
     }
 
     /**
@@ -76,6 +143,11 @@ public class LoginView extends JFrame {
      * 返回值: 无
      */
     public void onRegisterClick() {
-        throw new UnsupportedOperationException("待实现: LoginView.onRegisterClick 负责人: 待分配");
+
+        // 打开注册页面
+        new RegisterView().setVisible(true);
+
+        // 关闭当前窗口
+        dispose();
     }
 }
