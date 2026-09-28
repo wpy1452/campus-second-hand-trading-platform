@@ -134,9 +134,10 @@ public class EditProfileDialog extends JDialog {
      */
 
     public void onSaveClick() {
-        throw new UnsupportedOperationException("待实现: EditProfileDialog.onSaveClick 负责人: 待分配");
+        // 复用 saveButtonAction 的完整逻辑(含原数据备份与失败回滚), 避免重复代码
+        saveButtonAction();
     }
-    
+
     public void saveButtonAction() {
         User user = Session.getCurrentUser();
         if (user == null) {
@@ -151,14 +152,29 @@ public class EditProfileDialog extends JDialog {
             return;
         }
 
+        // 先备份 user 原来的昵称和联系方式, 万一修改失败可以回滚,
+        // 避免 Session 里的当前用户残留成错误的新数据
+        String oldNickname = user.getNickname();
+        String oldContact = user.getContact();
+
         user.setNickname(nickname);
         user.setContact(contact);
 
-        boolean success = userService.updateInfo(user);
+        boolean success;
+        try {
+            success = userService.updateInfo(user);
+        } catch (Exception e) {
+            // Service 内部出错(抛异常)也按修改失败处理, 走下面的回滚
+            e.printStackTrace();
+            success = false;
+        }
         if (success) {
             JOptionPane.showMessageDialog(this, "修改成功");
             dispose();
         } else {
+            // 修改失败: 把 user 恢复成备份的原数据
+            user.setNickname(oldNickname);
+            user.setContact(oldContact);
             JOptionPane.showMessageDialog(this, "修改失败");
         }
     }
