@@ -81,7 +81,14 @@ public class ProfileView extends JFrame {
      * 返回值: 无
      */
     public void loadUserInfo() {
-        throw new UnsupportedOperationException("待实现: ProfileView.loadUserInfo 负责人: 待分配");
+        User user = Session.getCurrentUser();
+        if (user == null) {
+            System.out.println("当前无用户登陆");
+            return;
+        }
+        nicknameLabel.setText("昵称：" + user.getNickname());
+        accountLabel.setText("账号：" + user.getAccount());
+        contactLabel.setText("联系方式：" + user.getContact());
     }
 
     /**
@@ -93,7 +100,36 @@ public class ProfileView extends JFrame {
      * 返回值: 无
      */
     public void loadMyGoods() {
-        throw new UnsupportedOperationException("待实现: ProfileView.loadMyGoods 负责人: 待分配");
+        GoodsService service = new GoodsService();
+        List<Goods> list = service.myGoods(Session.currentUserId());
+
+        if (list == null){
+            System.out.println("loadMyGoods:返回商品列表为空");
+            return;
+        }
+
+        goodsTableModel.setRowCount(0);
+        for (int i = 0; i < list.size(); i++) {
+            Goods g = list.get(i);
+            goodsTableModel.addRow(new Object[]{
+                    g.getId(),
+                    g.getTitle(),
+                    g.getPrice()/100.0,
+                    statusToText(g.getStatus())
+            });
+        }
+    }
+    private String statusToText(GoodsStatus status) {
+        if (status == GoodsStatus.SALE) {
+            return "在售";
+        } else if (status == GoodsStatus.SOLD) {
+            return "已售出";
+        } else if (status == GoodsStatus.OFF) {
+            return "已下架";
+        } else if (status == GoodsStatus.DRAFT) {
+            return "待处理";
+        }
+        return "未知";
     }
 
     /**
@@ -105,7 +141,19 @@ public class ProfileView extends JFrame {
      * 返回值: 无
      */
     public void loadFriends() {
-        throw new UnsupportedOperationException("待实现: ProfileView.loadFriends 负责人: 待分配");
+        FriendService service = new FriendService();
+        List<User> list = service.listFriends(Session.currentUserId());
+
+        if (list == null){
+            System.out.println("loadFriends:返回好友列表为空");
+            return;
+        }
+
+        friendListModel.clear();
+        for (int i = 0; i < list.size(); i++) {
+            User f = list.get(i);
+            friendListModel.addElement(f.getNickname() + "(" + f.getAccount() + ")");
+        }
     }
 
     /**

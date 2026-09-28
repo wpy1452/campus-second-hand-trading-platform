@@ -57,7 +57,25 @@ public class MyMessageView extends JFrame {
      * 返回值: 无
      */
     public void loadMyMessages() {
-        throw new UnsupportedOperationException("待实现: MyMessageView.loadMyMessages 负责人: 待分配");
+        GoodsMessageService service = new GoodsMessageService();
+        List<GoodsMessage> list = service.myMessages(Session.currentUserId());
+
+        if (list == null){
+            System.out.println("loadMyMessages:返回留言列表为空");
+            return;
+        }
+
+        tableModel.setRowCount(0);
+
+        for (int i = 0; i < list.size(); i++) {
+            GoodsMessage m = list.get(i);
+            tableModel.addRow(new Object[]{
+                    m.getId(),
+                    m.getGoodsTitle(),
+                    m.getContent(),
+                    m.getCreateTime()
+            });
+        }
     }
 
     /**
