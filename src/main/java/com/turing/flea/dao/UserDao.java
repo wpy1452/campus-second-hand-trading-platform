@@ -11,12 +11,12 @@ import com.turing.flea.entity.User;
  * 实现要求: 用 PreparedStatement, 不要拼字符串(防止 SQL 注入)
  * 统一模板见 util/DBUtil 的类注释
  *
- * 负责人: 待分配
+ * 负责人: xyz
  */
 public interface UserDao {
 
     /**
-     * 负责人: 待分配
+     * 负责人: xyz
      * 功能: 新增一个用户 (注册)
      *       SQL: insert into user(account, password, nickname, contact) values(?,?,?,?)
      *       插入成功后把数据库生成的自增主键 set 回 user 对象
@@ -26,7 +26,7 @@ public interface UserDao {
     int insert(User user);
 
     /**
-     * 负责人: 待分配
+     * 负责人: xyz
      * 功能: 判断账号是否已经存在
      *       SQL: select count(*) from user where account = ?
      * 参数: account 账号
@@ -35,8 +35,8 @@ public interface UserDao {
     boolean existsAccount(String account);
 
     /**
-     * 负责人: 待分配
-     * 功能: 按账号查用户 (登录时用)
+     * 负责人: xyz
+     * 功能: 按账号查用户 (登录/加好友时用)
      *       SQL: select * from user where account = ?
      * 参数: account 账号
      * 返回值: 查到的用户; 没有这个账号返回 null
@@ -44,8 +44,8 @@ public interface UserDao {
     User findByAccount(String account);
 
     /**
-     * 负责人: 待分配
-     * 功能: 按id查用户 (商品详情页显示卖家昵称/联系方式时用)
+     * 负责人: xyz
+     * 功能: 按id查用户 (商品详情页显示卖家昵称/联系方式、交易界面显示买家时用)
      *       SQL: select * from user where id = ?
      * 参数: id 用户id
      * 返回值: 查到的用户; 没有返回 null
@@ -53,16 +53,25 @@ public interface UserDao {
     User findById(int id);
 
     /**
-     * 负责人: 待分配
+     * 负责人: xyz
      * 功能: 修改个人信息(昵称、联系信息)
      *       SQL: update user set nickname = ?, contact = ? where id = ?
      * 参数: user 里面要有 id / nickname / contact
      * 返回值: 影响行数>=1 返回 true, 否则 false
      */
+    boolean update(User user);
+
+    /**
+     * 负责人: xyz
+     * 功能: 修改个人信息 (update 的旧名字, 保留给已经按老注释写好的界面调用)
+     *       实现和 update 完全一样, 新代码请用 update
+     * 参数: user 里面要有 id / nickname / contact
+     * 返回值: 修改成功返回 true, 否则 false
+     */
     boolean updateInfo(User user);
 
     /**
-     * 负责人: 待分配
+     * 负责人: xyz
      * 功能: 修改密码
      *       SQL: update user set password = ? where id = ?
      * 参数: userId 用户id; newPassword 新密码
