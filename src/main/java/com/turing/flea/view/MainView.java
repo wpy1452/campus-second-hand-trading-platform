@@ -115,6 +115,16 @@ public class MainView extends JFrame {
         profileButton.addActionListener(e -> onProfileClick());
         chatButton.addActionListener(e -> onChatClick());
 
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            @Override
+            public void windowGainedFocus(java.awt.event.WindowEvent e) {
+                loadOnSaleGoods();
+            }
+            @Override
+            public void windowLostFocus(java.awt.event.WindowEvent e) {
+            }
+        });
+
         loadOnSaleGoods();
         startMessageTimer();
     }
@@ -236,7 +246,12 @@ public class MainView extends JFrame {
     public void startMessageTimer() {
         messageTimer = new javax.swing.Timer(3000, e -> {
             ChatService chatService = new ChatService();
-            int unread = chatService.unreadCount(com.turing.flea.common.Session.currentUserId());
+            int unread;
+            try {
+                unread = chatService.unreadCount(com.turing.flea.common.Session.currentUserId());
+            } catch (UnsupportedOperationException ignored) {
+                return;
+            }
             if (unread > 0) {
                 JOptionPane.showMessageDialog(this, "你有新消息");
             }
