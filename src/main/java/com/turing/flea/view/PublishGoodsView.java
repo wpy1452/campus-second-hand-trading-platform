@@ -1,9 +1,24 @@
 package com.turing.flea.view;
 
+import com.turing.flea.common.Session;
+import com.turing.flea.entity.Goods;
+import com.turing.flea.service.GoodsService;
+
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.io.File;
 
 /**
  * 发布商品界面
@@ -35,7 +50,7 @@ public class PublishGoodsView extends JFrame {
     private JButton backButton;
 
     /**
-     * 负责人: 待分配
+     * 负责人: 1111
      * 功能: 创建发布商品窗口并初始化界面
      * 参数: 无
      * 返回值: 无
@@ -49,17 +64,68 @@ public class PublishGoodsView extends JFrame {
     }
 
     /**
-     * 负责人: 待分配
+     * 负责人: 1111
      * 功能: 初始化界面: 摆好输入框和按钮, 给按钮绑定点击事件
      * 参数: 无
      * 返回值: 无
      */
     public void initView() {
-        // TODO 待实现 (负责人: 待分配)
+        titleField = new JTextField(25);
+        descriptionArea = new JTextArea(5, 25);
+        descriptionArea.setLineWrap(true);
+        priceField = new JTextField(10);
+        imagePathField = new JTextField(25);
+        chooseImageButton = new JButton("选择图片");
+        publishButton = new JButton("发布商品");
+        backButton = new JButton("返回");
+
+        setLayout(new BorderLayout());
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 10, 8, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("标题:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(titleField, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1;
+        formPanel.add(new JLabel("描述:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(new JScrollPane(descriptionArea), gbc);
+
+        gbc.gridx = 0; gbc.gridy = 2;
+        formPanel.add(new JLabel("价格:"), gbc);
+        gbc.gridx = 1;
+        JPanel pricePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        pricePanel.add(priceField);
+        pricePanel.add(new JLabel(" 元"));
+        formPanel.add(pricePanel, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(new JLabel("图片:"), gbc);
+        gbc.gridx = 1;
+        JPanel imagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        imagePanel.add(imagePathField);
+        imagePanel.add(chooseImageButton);
+        formPanel.add(imagePanel, gbc);
+
+        add(formPanel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.add(publishButton);
+        buttonPanel.add(backButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        chooseImageButton.addActionListener(e -> onChooseImageClick());
+        publishButton.addActionListener(e -> onPublishClick());
+        backButton.addActionListener(e -> onBackClick());
     }
 
     /**
-     * 负责人: 待分配
+     * 负责人: 1111
      * 功能: 点击【选择图片】按钮
      *       1. new JFileChooser() 弹出来选一张图片
      *       2. 把选中的文件绝对路径 setText 到图片路径输入框
@@ -67,11 +133,18 @@ public class PublishGoodsView extends JFrame {
      * 返回值: 无
      */
     public void onChooseImageClick() {
-        throw new UnsupportedOperationException("待实现: PublishGoodsView.onChooseImageClick 负责人: 待分配");
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("选择商品图片");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            imagePathField.setText(selectedFile.getAbsolutePath());
+        }
     }
 
     /**
-     * 负责人: 待分配
+     * 负责人: 1111
      * 功能: 点击【发布】按钮
      *       1. 校验: 标题不能为空, 价格必须是数字且>0 (view 的格式校验)
      *       2. 封装 Goods: title/description/imagePath, price = 元*100, sellerId = Session.currentUserId()
@@ -82,16 +155,54 @@ public class PublishGoodsView extends JFrame {
      * 返回值: 无
      */
     public void onPublishClick() {
-        throw new UnsupportedOperationException("待实现: PublishGoodsView.onPublishClick 负责人: 待分配");
+        String title = titleField.getText().trim();
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "标题不能为空");
+            return;
+        }
+
+        String priceText = priceField.getText().trim();
+        if (priceText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "价格不能为空");
+            return;
+        }
+
+        double priceYuan;
+        try {
+            priceYuan = Double.parseDouble(priceText);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "价格必须是数字");
+            return;
+        }
+        if (priceYuan <= 0) {
+            JOptionPane.showMessageDialog(this, "价格必须大于0");
+            return;
+        }
+
+        Goods goods = new Goods();
+        goods.setTitle(title);
+        goods.setDescription(descriptionArea.getText().trim());
+        goods.setPrice((int) (priceYuan * 100));
+        goods.setImagePath(imagePathField.getText().trim());
+        goods.setSellerId(Session.currentUserId());
+
+        GoodsService goodsService = new GoodsService();
+        int goodsId = goodsService.publish(goods);
+        if (goodsId == -1) {
+            JOptionPane.showMessageDialog(this, "发布失败, 请稍后重试");
+        } else {
+            JOptionPane.showMessageDialog(this, "发布成功");
+            dispose();
+        }
     }
 
     /**
-     * 负责人: 待分配
+     * 负责人: 1111
      * 功能: 点击【返回】按钮: dispose() 关掉本窗口
      * 参数: 无
      * 返回值: 无
      */
     public void onBackClick() {
-        throw new UnsupportedOperationException("待实现: PublishGoodsView.onBackClick 负责人: 待分配");
+        dispose();
     }
 }
