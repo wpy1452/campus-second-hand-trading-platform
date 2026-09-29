@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * GoodsMessageDao 的 JDBC 实现
- *
+ * <p>
  * 负责人: 雨
  * 写法: 见 UserDaoImpl 的类注释(同一套模板)
  * 每个函数的具体 SQL 见 dao/GoodsMessageDao 接口里的注释
@@ -78,7 +78,7 @@ public class GoodsMessageDaoImpl implements GoodsMessageDao {
         // TODO 待实现 (负责人: 雨)
         //throw new UnsupportedOperationException("待实现: GoodsMessageDaoImpl.findByUserId 负责人: 待分配");
         String sql = "select m.*, g.title from goods_message m "
-        + "join goods g on m.goods_id = g.id "
+                + "join goods g on m.goods_id = g.id "
                 + "where m.user_id = ? order by m.create_time desc";
 
         List<GoodsMessage> list = new ArrayList<>();
