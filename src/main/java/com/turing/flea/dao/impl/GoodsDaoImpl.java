@@ -293,4 +293,31 @@ public class GoodsDaoImpl implements GoodsDao {
         g.setSellerNickname(rs.getString("seller_nickname"));
         return g;
     }
+
+    /*
+     * 负责人：亦妄辰（应交易模块的事务需要【新增】，原有的 8 个方法一行未动，请久违 review）
+     * 功能：只改商品状态（事务版）。SQL 与上面的 updateStatus(int, GoodsStatus) 完全一致，
+     *      区别只有两点：
+     *        1. 连接从参数拿，不自己 DBUtil.getConnection()
+     *        2. 【不关闭】这条连接 —— 它由 TradeService 统一 commit / rollback / close
+     *      只有这样，"insert trade" 和 "update goods" 才能跑在同一条连接上，事务才真的生效。
+     * 参数：goodsId 商品id；status 目标状态；conn 由 TradeService 开启事务后传入
+     * 返回值：修改成功返回 true，否则 false
+     * */
+    @Override
+    public boolean updateStatus(int goodsId, GoodsStatus status, Connection conn) {
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement("update goods set status = ? where id = ?");
+            pstmt.setInt(1, status.getCode());
+            pstmt.setInt(2, goodsId);
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            // 只还 pstmt，连接留给 TradeService 关
+            DBUtil.close(null, pstmt, null);
+        }
+    }
 }

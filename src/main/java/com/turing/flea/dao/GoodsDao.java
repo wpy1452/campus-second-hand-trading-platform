@@ -94,4 +94,24 @@ public interface GoodsDao {
      * 返回值: 匹配到的商品列表, 没有返回空集合
      */
     List<Goods> searchOnSale(String keyword);
+
+    /* ==================== 事务版重载（应交易模块需要新增）====================
+     * 上面那个 updateStatus 自己 DBUtil.getConnection()、自己关连接；
+     * 这一个的连接由外部(TradeService)传进来, 并且不负责关闭。
+     *
+     * 为什么需要: 创建/取消交易时, "改 trade 表" 和 "改 goods 表" 两句 SQL
+     * 必须放进同一个事务; 而事务成立的前提是这两句跑在【同一条连接】上。
+     * 各拿各的连接, 就算写了 setAutoCommit/commit 也不会生效。
+     *
+     * 说明: 新增方法, 原有的 8 个方法一行未动。由亦妄辰提交, 请久违 review。
+     */
+
+    /**
+     * 负责人: 亦妄辰
+     * 功能: 只改商品状态 (事务版, SQL 与 updateStatus(int, GoodsStatus) 完全相同)
+     *       连接由调用方传入, 用完不关闭 —— 交给 TradeService 统一 commit / rollback / close
+     * 参数: goodsId 商品id; status 目标状态; conn 由 TradeService 开启事务后传入
+     * 返回值: 修改成功返回 true, 否则 false
+     */
+    boolean updateStatus(int goodsId, GoodsStatus status, Connection conn);
 }
