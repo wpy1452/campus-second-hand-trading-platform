@@ -3,6 +3,7 @@ package com.turing.flea.dao;
 import com.turing.flea.common.TradeStatus;
 import com.turing.flea.entity.Trade;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -60,4 +61,30 @@ public interface TradeDao {
      * 返回值: 交易列表, 没有返回空集合
      */
     List<Trade> findByUserId(int userId);
+
+    /* ==================== 以下两个是"事务版"重载 ====================
+     * 普通版自己 DBUtil.getConnection()、自己关连接;
+     * 事务版的连接由外部(TradeService)传进来, 并且不负责关闭它。
+     *
+     * 为什么需要: 创建/取消交易时, "改 trade 表" 和 "改 goods 表" 两句 SQL
+     * 必须放进同一个事务; 而事务成立的前提是这两句跑在【同一条连接】上。
+     * 各拿各的连接, 就算写了 setAutoCommit/commit 也不生效。
+     */
+
+    /**
+     * 负责人: 亦妄辰
+     * 功能: 新增一条交易记录 (事务版, SQL 与 insert(Trade) 完全相同)
+     *       连接由调用方传入, 用完不关闭 —— 交给 TradeService 统一 commit / rollback / close
+     * 参数: trade 要新增的交易; conn 由 TradeService 开启事务后传入
+     * 返回值: 新增交易的id; 失败返回 -1
+     */
+    int insert(Trade trade, Connection conn);
+
+    /**
+     * 负责人: 亦妄辰
+     * 功能: 修改交易状态 (事务版, SQL 与 updateStatus(int, TradeStatus) 完全相同)
+     * 参数: tradeId 交易id; status 目标状态; conn 由 TradeService 传入
+     * 返回值: 修改成功返回 true, 否则 false
+     */
+    boolean updateStatus(int tradeId, TradeStatus status, Connection conn);
 }

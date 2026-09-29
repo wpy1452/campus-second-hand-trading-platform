@@ -145,6 +145,61 @@ public class TradeDaoImpl implements TradeDao {
         return list;    // 查不到就是空 list, 不要返回 null
     }
 
+    /* ========================= 事务版重载 =========================
+     * 与上面同名方法的 SQL 完全一样, 区别只有两点:
+     *   1. 连接从参数拿, 不自己 DBUtil.getConnection()
+     *   2. 【不关闭】这条连接 —— 它由 TradeService 统一 commit / rollback / close
+     * 只有这样, "insert trade" 和 "goodsDao.updateStatus" 才能跑在同一条连接上,
+     * TradeService 里的事务才真的生效。
+     */
+
+    @Override
+    public int insert(Trade trade, Connection conn) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = conn.prepareStatement(
+                    "insert into trade(goods_id, buyer_id, seller_id, amount, status) values(?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, trade.getGoodsId());
+            ps.setInt(2, trade.getBuyerId());
+            ps.setInt(3, trade.getSellerId());
+            ps.setInt(4, trade.getAmount());
+            ps.setInt(5, trade.getStatus().getCode());
+
+            if (ps.executeUpdate() > 0) {
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    int id = rs.getInt(1);
+                    trade.setId(id);
+                    return id;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // 只还 rs 和 ps, 连接留给 TradeService 关
+            DBUtil.close(rs, ps, null);
+        }
+        return -1;
+    }
+
+    @Override
+    public boolean updateStatus(int tradeId, TradeStatus status, Connection conn) {
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement("update trade set status = ? where id = ?");
+            ps.setInt(1, status.getCode());
+            ps.setInt(2, tradeId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            DBUtil.close(null, ps, null);
+        }
+    }
+
     // 把结果集里的一行装成一个 Trade 对象, 上面三个查询都要用
     private Trade toTrade(ResultSet rs) throws Exception {
         Trade t = new Trade();
