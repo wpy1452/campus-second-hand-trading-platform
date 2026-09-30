@@ -73,9 +73,14 @@ public class GoodsMessageService {
      */
     public boolean delete(int messageId) {
         List<GoodsMessage> mine = goodsMessageDao.findByUserId(Session.currentUserId());
-        if (mine == null || mine.size() == 0 || mine.get(0).getUserId() != com.turing.flea.common.Session.currentUserId()) {
+        if (mine == null) {
             return false;
         }
-        return goodsMessageDao.deleteById(messageId);
+        for (GoodsMessage m : mine) {
+            if (m.getId() == messageId) {
+                return goodsMessageDao.deleteById(messageId);
+            }
+        }
+        return false;
     }
 }
