@@ -260,19 +260,25 @@ public class ProfileView extends JFrame {
      * 参数: 无
      * 返回值: 无
      */
+
     public void loadFriends() {
-        FriendService service = new FriendService();
-        List<User> list = service.listFriends(Session.currentUserId());
-
-        if (list == null){
-            System.out.println("loadFriends:返回好友列表为空");
-            return;
-        }
-
-        friendListModel.clear();
-        for (int i = 0; i < list.size(); i++) {
-            User f = list.get(i);
-            friendListModel.addElement(f.getNickname() + "(" + f.getAccount() + ")");
+        friendListModel.clear();           // 先清空，保证 UI 可用
+        try {
+            FriendService service = new FriendService();
+            List<User> list = service.listFriends(Session.currentUserId());
+            if (list == null) {
+                System.out.println("loadFriends:返回好友列表为空");
+                return;
+            }
+            for (User f : list) {
+                friendListModel.addElement(f.getNickname() + "(" + f.getAccount() + ")");
+            }
+        } catch (UnsupportedOperationException ex) {
+            // 好友功能暂未实现，忽略即可，界面照常打开
+            System.out.println("好友功能未实现，跳过加载: " + ex.getMessage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            // 其他异常也不影响主界面显示
         }
     }
 
@@ -402,8 +408,12 @@ public class ProfileView extends JFrame {
      * 返回值: 无
      */
     public void onAddFriendClick() {
-        new AddFriendDialog(this).setVisible(true);
-        loadFriends();
+        try {
+            new AddFriendDialog(this).setVisible(true);
+            loadFriends();
+        } catch (UnsupportedOperationException ex) {
+            JOptionPane.showMessageDialog(this, "好友功能暂未实现");
+        }
     }
 
     /**
