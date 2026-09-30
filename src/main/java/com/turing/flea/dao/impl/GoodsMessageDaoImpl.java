@@ -76,9 +76,9 @@ public class GoodsMessageDaoImpl implements GoodsMessageDao {
     @Override
     public List<GoodsMessage> findByUserId(int userId) {
         // TODO 待实现 (负责人: 雨)
-        //throw new UnsupportedOperationException("待实现: GoodsMessageDaoImpl.findByUserId 负责人: 待分配");
-        String sql = "select m.*, g.title from goods_message m "
+        String sql = "select m.*, g.title, u.nickname from goods_message m "
                 + "join goods g on m.goods_id = g.id "
+                + "join `user` u on m.user_id = u.id "
                 + "where m.user_id = ? order by m.create_time desc";
 
         List<GoodsMessage> list = new ArrayList<>();
@@ -95,6 +95,7 @@ public class GoodsMessageDaoImpl implements GoodsMessageDao {
                     m.setContent(rs.getString("content"));
                     m.setCreateTime(rs.getTimestamp("create_time"));
                     m.setUserNickname(rs.getString("nickname"));
+                    m.setGoodsTitle(rs.getString("title")); // 补上商品标题
                     list.add(m);
                 }
             }
