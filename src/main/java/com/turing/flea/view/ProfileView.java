@@ -53,8 +53,8 @@ public class ProfileView extends JFrame {
     private JButton editInfoButton;
     /** 修改密码按钮 (弹 ChangePasswordDialog) */
     private JButton changePasswordButton;
-    /** 添加好友按钮 (拓展功能, 弹 AddFriendDialog) */
-    private JButton addFriendButton;
+    /** 我的交易按钮 (打开 MyTradeView, 查看我买入/卖出的交易) */
+    private JButton myTradeButton;
     /** 我的留言按钮 (拓展功能, 打开 MyMessageView) */
     private JButton myMessageButton;
 
@@ -114,12 +114,12 @@ public class ProfileView extends JFrame {
 
         editInfoButton = new JButton("修改信息");
         changePasswordButton = new JButton("修改密码");
-        addFriendButton = new JButton("添加好友");
+        myTradeButton = new JButton("我的交易");
         myMessageButton = new JButton("我的留言");
         JPanel functionPanel = new JPanel(new GridLayout(1, 4, 10, 5));
         functionPanel.add(editInfoButton);
         functionPanel.add(changePasswordButton);
-        functionPanel.add(addFriendButton);
+        functionPanel.add(myTradeButton);
         functionPanel.add(myMessageButton);
 
         JPanel leftPanel = new JPanel(new BorderLayout());
@@ -165,10 +165,10 @@ public class ProfileView extends JFrame {
                 onChangePasswordClick();
             }
         });
-        addFriendButton.addActionListener(new ActionListener() {
+        myTradeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                onAddFriendClick();
+                onMyTradeClick();
             }
         });
         myMessageButton.addActionListener(new ActionListener() {
@@ -403,17 +403,12 @@ public class ProfileView extends JFrame {
 
     /**
      * 负责人: 待分配
-     * 功能: 点击【添加好友】(拓展): 弹出 AddFriendDialog, 关闭后重新 loadFriends()
+     * 功能: 点击【我的交易】: 打开 MyTradeView 查看我买入/卖出的交易
      * 参数: 无
      * 返回值: 无
      */
-    public void onAddFriendClick() {
-        try {
-            new AddFriendDialog(this).setVisible(true);
-            loadFriends();
-        } catch (UnsupportedOperationException ex) {
-            JOptionPane.showMessageDialog(this, "好友功能暂未实现");
-        }
+    public void onMyTradeClick() {
+        new MyTradeView().setVisible(true);
     }
 
     /**
