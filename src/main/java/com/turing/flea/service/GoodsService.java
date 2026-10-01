@@ -103,7 +103,16 @@ public class GoodsService {
      * 返回值: 修改成功返回 true, 否则 false
      */
     public boolean modify(Goods goods) {
-        throw new UnsupportedOperationException("待实现: GoodsService.modify 负责人: 待分配");
+        if (goods == null) {
+            return false;
+        }
+        // 从数据库取出原始商品再判断归属: 界面传进来的 sellerId 不可信
+        Goods existing = goodsDao.findById(goods.getId());
+        if (existing == null || existing.getSellerId() != Session.currentUserId()) {
+            return false;
+        }
+
+        return goodsDao.update(goods);
     }
 
     /**

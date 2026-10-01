@@ -7,6 +7,7 @@ import com.turing.flea.entity.GoodsMessage;
 import com.turing.flea.service.GoodsMessageService;
 import com.turing.flea.service.GoodsService;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -29,6 +30,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 /**
@@ -210,8 +215,26 @@ public class GoodsDetailView extends JFrame {
             imageLabel.setIcon(null);
             imageLabel.setText("暂无图片");
         } else {
-            ImageIcon rawIcon = new ImageIcon(imagePath);
-            if (rawIcon.getIconWidth() > 0) {
+            imagePath = imagePath.trim();
+            ImageIcon rawIcon = null;
+            try {
+                if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+                    URLConnection conn = new URL(imagePath).openConnection();
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(5000);
+                    try (InputStream in = conn.getInputStream()) {
+                        BufferedImage img = ImageIO.read(in);
+                        if (img != null) {
+                            rawIcon = new ImageIcon(img);
+                        }
+                    }
+                } else {
+                    rawIcon = new ImageIcon(imagePath);   // 本地文件照旧
+                }
+            } catch (Exception ex) {
+                rawIcon = null;                            // 网络失败/坏链接
+            }
+            if (rawIcon != null && rawIcon.getIconWidth() > 0) {
                 Image scaled = rawIcon.getImage().getScaledInstance(280, 210, Image.SCALE_SMOOTH);
                 imageLabel.setIcon(new ImageIcon(scaled));
                 imageLabel.setText("");
